@@ -9,6 +9,7 @@ function Robot = InteractiveSim(Robot, mode)
 
 
 clc;
+FigureSetup(Robot)
 RobotFigure = gcf;
 states = guidata(RobotFigure);
 fprintf('====================================\n\n');
@@ -17,5 +18,9 @@ fprintf('====================================\n\n');
 fprintf('       Running Simulation...\n');
 fprintf('         {Delete to quit}\n\n');
 
-
-Robot = Simulation1(Robot);
+if (mode == 1)
+    Robot = Simulation1(Robot);
+elseif (mode == 2)
+    Robot = Simulation2(Robot);
+end
+    

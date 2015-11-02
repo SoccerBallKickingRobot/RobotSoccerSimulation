@@ -10,6 +10,7 @@ function KC = RotateKinematicChain(KC, X)
 
 % Add the rotation to the DOF
 KC.DHParams.thetas = (KC.thetas.thi + X);
+KC.states(1:KC.DOF) = X;
 
 % Homogeneous transformations
 KC.DHParams.H = DHTransforms(KC.DHParams);

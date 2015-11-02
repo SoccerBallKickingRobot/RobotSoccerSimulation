@@ -38,7 +38,7 @@ elseif (strcmp(Robot.Name, 'Robot Leg'))
     FS = 16;xlabel('X [m]','FontSize',FS);
     title('Robot Leg Simulation','FontSize',FS);
     ylabel('Y [m]','FontSize',FS);zlabel('Z [m]','FontSize',FS);
-    axis([-1 1 -1 1 -0.4 1.6]);
+    axis([-0.4 0.4 -0.4 0.4 -0.2 0.6]);
     hold on; grid on;
     
 else

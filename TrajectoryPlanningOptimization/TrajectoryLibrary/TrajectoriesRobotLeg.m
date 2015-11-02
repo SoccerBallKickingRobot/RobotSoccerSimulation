@@ -14,12 +14,12 @@ if (traj.traj == 1)
         traj.runs = 360; % Number of runs
         traj.noise = 0; % No noise
     else
-        traj.point(1,1) = 0.45*sind(1*i) + 0;
+        traj.point(1,1) = 0.45*sind(1*i);
         traj.point(2,1) = 0;
         if (traj.point(1,1) > 0)
-            traj.point(3,1) = 0.05;
+            traj.point(3,1) = 0.025;
         else
-            traj.point(3,1) = -0.15*cosd(2*i) + 0.2;
+            traj.point(3,1) = -0.15*cosd(2*i) + 0.175;
         end
             
     end

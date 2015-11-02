@@ -19,31 +19,31 @@ RL.DOF = 3;
 % Length of the links
 RL.d.length = struct();
 % Ground origin to hip
-RL.d.length.hO1 = 1;
+RL.d.length.hO1 = 0.25;
 % Hip to knee: Thigh
-RL.d.length.l(1) = 0.5;
+RL.d.length.l(1) = 0.25/2;
 % Knee to ankle
-RL.d.length.l(2) = 0.5;
+RL.d.length.l(2) = 0.25/2;
 % Ankle to toe
-RL.d.length.l(3) = 0.25; thAnkle = pi/2; 
+RL.d.length.l(3) = 0.0625; thAnkle = pi/2; 
 
 % Length of the link center of mass
 RL.d.dCOM = struct();
 % Thigh COM
-RL.d.dCOM.lc(1) = 0.5/2;
+RL.d.dCOM.lc(1) = RL.d.length.l(1)/2;
 % Knee to ankle
-RL.d.dCOM.lc(2) = 0.5/2;
+RL.d.dCOM.lc(2) = RL.d.length.l(2)/2;
 % Ankle to toe
-RL.d.dCOM.lc(3) = 0.25/2;
+RL.d.dCOM.lc(3) = RL.d.length.l(3)/2;
 
 % Mass of the links
 RL.mass = struct();
-RL.mass = [1;1;0.25];
+RL.mass = [0.09;0.09;0.09/2.2];
 
 % Inertia of the links
 RL.inertia = {};
 for i = 1:RL.DOF
-   RL.inertia{i} = [0, 0, 0;...
+   RL.inertia{i} = 0*[0, 0, 0;...
        0, (RL.mass(i)*RL.d.length.l(i)^2)/3, 0;...
        0, 0, (RL.mass(i)*RL.d.length.l(i)^2)/3];
 end
@@ -122,3 +122,4 @@ end
 
 %% ===============Transform each point in the global frame=================
 RLK = RotateKinematicChain(KinematicSystem(RL), zeros(RL.DOF, 1));
+EOMSymNum(RLK);
