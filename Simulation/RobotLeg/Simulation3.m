@@ -1,13 +1,18 @@
 %% =================Simulate Solved Optimized Trajectory===================
+% 2.740: Bio-Inspired Robotics
+% Soccer Ball Kicking Robot
+% Gerardo Bledt
+% November 3, 2015
+%
+% Simulates the dynamic swinging leg kicking the soccer ball with a very
+% rough contact model.
 function Robot = Simulation3(Robot)
 KC = Robot.KinematicChains.RL;
 SoccerBall = CreateSoccerBall;
 
 tspan = 0:.03:pi/3+6/(180);
 z0 = zeros(12,1);
-z0(7) = SoccerBall.dims.radius;
-z0(9) = 0.3;
-z0(10) = 0;
+z0(7:9) = [SoccerBall.dims.radius; 0; 0.3];
 z0(12) = 1;
 opts = odeset('AbsTol',1e-3,'RelTol',1e-3);
 [x,y] = ode23t(@dynamics,tspan,z0,opts,KC,SoccerBall,Robot);

@@ -6,7 +6,6 @@
 %
 % Class definition for the Object Object. Gives physical properties to an
 % object that can be used in simulation.
-
 classdef Object
     properties
         Name;
