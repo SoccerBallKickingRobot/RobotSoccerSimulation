@@ -1,4 +1,10 @@
 %% =================Simulate Solved Optimized Trajectory===================
+% 2.740: Bio-Inspired Robotics
+% Soccer Ball Kicking Robot
+% Gerardo Bledt
+% November 1, 2015
+%
+% Simulates the dynamic swinging leg.
 function Robot = Simulation2(Robot)
 KC = Robot.KinematicChains.RL;
 
