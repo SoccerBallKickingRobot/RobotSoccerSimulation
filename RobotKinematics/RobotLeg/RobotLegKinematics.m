@@ -19,13 +19,13 @@ RL.DOF = 3;
 % Length of the links
 RL.d.length = struct();
 % Ground origin to hip
-RL.d.length.hO1 = 0.25;
+RL.d.length.hO1 = 0.35;
 % Hip to knee: Thigh
 RL.d.length.l(1) = 0.25/2;
 % Knee to ankle
 RL.d.length.l(2) = 0.25/2;
 % Ankle to toe
-RL.d.length.l(3) = 0.0625; thAnkle = pi/2; 
+RL.d.length.l(3) = 0.0625; thAnkle = pi/8; 
 
 % Length of the link center of mass
 RL.d.dCOM = struct();

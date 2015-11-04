@@ -22,6 +22,7 @@ classdef KinematicSystem
         inertia;        % Inertia of the links
         states;
         symbolic;       % Holds the symbolic variables
+        traj;           % Trajectory for the KS
         optimization;   % Optimization parameters, weights and bounds
     end
     

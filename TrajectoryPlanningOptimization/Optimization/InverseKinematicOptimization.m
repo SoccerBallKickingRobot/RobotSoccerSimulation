@@ -10,7 +10,7 @@ function X = InverseKinematicOptimization(KC, pts)
 % to and uses fmincon to move the system around.
 
 % Sets the initial theta angles to their current values
-X0 = KC.DHParams.thetas - KC.thetas.thi;
+X0 = KC.states(1:3,:);%KC.DHParams.thetas - KC.thetas.thi;
 
 % The options for the optimization fmincon. Also specifies the gradient and
 % the Hessian function, although the Hessian is computationally heavy 
