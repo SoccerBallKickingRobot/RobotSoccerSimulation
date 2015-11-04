@@ -1,9 +1,9 @@
 function traj = TrajectoriesRobotLeg(i, traj)
-%% =======================Trajectories RoboHAZMAT==========================
-% RoboHAZMAT: Senior Design Project
-% Motion Control Team
+%% =======================Trajectories Robot Leg===========================
+% 2.740: Bio-Inspired Robotics
+% Soccer Ball Kicking Robot
 % Gerardo Bledt
-% January 4, 2015
+% October 30, 2015
 %
 % Creates various trajectories for the RoboHAZMAT robotic system.
 
@@ -13,17 +13,16 @@ if (traj.traj == 1)
         traj.velocity = 8;  % Set velocity
         traj.runs = 360; % Number of runs
         traj.noise = 0; % No noise
-    else
-        %i = 6*i;
-        traj.point(1,1) = 0.25*sind(1*i);
-        traj.point(2,1) = 0;
-        if (traj.point(1,1) > 0)
-            traj.point(3,1) = 0.05;
-        else
-            traj.point(3,1) = -0.15*cosd(2*i) + 0.2;
-        end
-            
     end
+    %i = 6*i;
+    traj.point(1,1) = 0.25*sind(1*i);
+    traj.point(2,1) = 0;
+    if (traj.point(1,1) > 0)
+        traj.point(3,1) = 0.05;
+    else
+        traj.point(3,1) = -0.15*cosd(2*i) + 0.2;
+    end
+    
     
 elseif (traj.traj == 2)
     % Creates a vaguely circular noisy trajectory
@@ -31,9 +30,8 @@ elseif (traj.traj == 2)
         traj.velocity = 8;  % Set velocity
         traj.runs = 360; % Number of runs
         traj.noise = 1; % Adds noise
-    else
-        traj.point(1,1) = 0.05*cosd(2*i + 180) + 0.35 + NoiseCalc;
-        traj.point(2,1) = -0.2*sind(i + 210) - 0.15 + NoiseCalc;
-        traj.point(3,1) = 0.2*cosd(i) + 0.3 + NoiseCalc;
     end
+    traj.point(1,1) = 0.05*cosd(2*i + 180) + 0.35 + NoiseCalc;
+    traj.point(2,1) = -0.2*sind(i + 210) - 0.15 + NoiseCalc;
+    traj.point(3,1) = 0.2*cosd(i) + 0.3 + NoiseCalc;
 end

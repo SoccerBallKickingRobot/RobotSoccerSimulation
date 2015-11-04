@@ -22,5 +22,7 @@ if (mode == 1)
     Robot = Simulation1(Robot);
 elseif (mode == 2)
     Robot = Simulation2(Robot);
+elseif (mode == 3)
+    Robot = Simulation3(Robot);
 end
     

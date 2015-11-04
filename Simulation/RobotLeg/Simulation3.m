@@ -1,22 +1,27 @@
 %% =================Simulate Solved Optimized Trajectory===================
-function Robot = Simulation2(Robot)
+function Robot = Simulation3(Robot)
 KC = Robot.KinematicChains.RL;
+SoccerBall = CreateSoccerBall;
 
-tspan = 0:.05:2*pi;
-z0 = zeros(6,1);
+tspan = 0:.03:pi/3+6/(180);
+z0 = zeros(12,1);
+z0(7) = SoccerBall.dims.radius;
+z0(9) = 0.3;
+z0(10) = 0;
+z0(12) = 1;
 opts = odeset('AbsTol',1e-3,'RelTol',1e-3);
-[x,y] = ode23t(@dynamics,tspan,z0,opts,KC,Robot);
+[x,y] = ode23t(@dynamics,tspan,z0,opts,KC,SoccerBall,Robot);
 
 Robot.KinematicChains.RL.traj.x = x';
 Robot.KinematicChains.RL.traj.y = y';
 Robot.KinematicChains.RL.traj.KCName = KC.Name;
 
-PlaybackTrajectory(Robot, Robot.KinematicChains.RL.traj, 1, 3)
+PlaybackTrajectory(Robot, Robot.KinematicChains.RL.traj, 1)
 end
 
 %%
 function tau = control_law(t,KC)
-t
+fprintf('%f\n',t);
 
 % Controller gains
 K = [100; 0; 100];
@@ -25,7 +30,7 @@ D = [5; 0; 5];
 % Calculate desired trajectory
 traj.traj = 1;
 t=t+pi;
-traj = TrajectoriesRobotLeg(t*180/pi,traj);
+traj = TrajectoriesRobotLeg(6*t*180/pi + 180,traj);
 footPosD = traj.point;
 %footPosD = [-0.25;0;0.29];
 %footPosD = [0.02+t/50;0;0.075];
@@ -51,8 +56,33 @@ end
 end
 
 %%
-function dz = dynamics(t,z,KC,Robot)
-KC.states = z;
+function Fc = contactForce(Ball,K,D)
+C = Ball.states(3) - Ball.dims.radius;
+dC = Ball.states(6);
+Fc = -K*C - D*dC;
+if (C > 0)
+    Fc = 0;
+end
+end
+
+%%
+function Fk = kickForce(KC,Ball,K,D)
+footPos = KC.points.pG(1:3,3);
+dFootPos = RobotLegFootVelocity(KC.states);
+C = Ball.dims.radius - norm(footPos - Ball.states(1:3));
+dC = dFootPos(1) - Ball.states(4);
+Fk = -K*C - D*dC;
+if (C < 0)
+    Fk = 0;
+end
+end
+
+%%
+function dz = dynamics(t,z,KC,SoccerBall,Robot)
+KC.states = z(1:6,1);
+SoccerBall.states = z(7:12,1);
+
+
 KC = RotateKinematicChain(KC,z(1:3,1));
 
 %     Robot.KinematicChains.RL = KC;
@@ -80,4 +110,9 @@ dz = 0*z;
 % Form dz
 dz(1:3) = z(4:6);
 dz(4:6) = qdd;
+
+dz(7:9) = z(10:12);
+dz(10) = -kickForce(KC,SoccerBall,100,1)/SoccerBall.mass;
+dz(12) = -9.81 + contactForce(SoccerBall,10000,1000)/SoccerBall.mass;
+    
 end

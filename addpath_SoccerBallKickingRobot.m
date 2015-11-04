@@ -19,6 +19,7 @@ addpath TrajectoryPlanningOptimization/Optimization
 addpath Utils/
 addpath Utils/Rotation
 addpath Utils/Plotting
+addpath Utils/Physics
 addpath Utils/Misc
 
 %% Adds the Serial communication scripts
