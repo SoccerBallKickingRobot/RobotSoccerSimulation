@@ -10,10 +10,10 @@ function Robot = Simulation3(Robot)
 KC = Robot.KinematicChains.RL;
 SoccerBall = CreateSoccerBall;
 
-tspan = 0:.03:pi/3+6/(180);
+tspan = 0:.03:pi/3+0.04;
 z0 = zeros(12,1);
-z0(7:9) = [SoccerBall.dims.radius; 0; 0.3];
-z0(12) = 1;
+z0(7:9) = [SoccerBall.dims.radius + 0.05; 0; SoccerBall.dims.radius];
+z0(12) = 0;
 opts = odeset('AbsTol',1e-3,'RelTol',1e-3);
 [x,y] = ode23t(@dynamics,tspan,z0,opts,KC,SoccerBall,Robot);
 
@@ -26,7 +26,7 @@ end
 
 %%
 function tau = control_law(t,KC)
-fprintf('%f\n',t);
+%fprintf('%f\n',t);
 
 % Controller gains
 K = [100; 0; 100];
@@ -65,21 +65,31 @@ function Fc = contactForce(Ball,K,D)
 C = Ball.states(3) - Ball.dims.radius;
 dC = Ball.states(6);
 Fc = -K*C - D*dC;
-if (C > 0)
+if (C > 0 || Fc < 0)
     Fc = 0;
 end
 end
 
 %%
-function Fk = kickForce(KC,Ball,K,D)
+function Fk = kickForce(KC,Ball)
 footPos = KC.points.pG(1:3,3);
 dFootPos = RobotLegFootVelocity(KC.states);
 C = Ball.dims.radius - norm(footPos - Ball.states(1:3));
 dC = dFootPos(1) - Ball.states(4);
-Fk = -K*C - D*dC;
-if (C < 0)
+Fk = -Ball.props.K*C - Ball.props.B*dC;
+if (C < 0 )
     Fk = 0;
 end
+
+dFootPos = RobotLegFootVelocity(KC.states);
+if (norm(dFootPos) ~= 0)
+    c = dFootPos/norm(dFootPos);
+else
+    c = zeros(3,1);
+end
+
+Fk = Fk*c;
+
 end
 
 %%
@@ -116,8 +126,9 @@ dz = 0*z;
 dz(1:3) = z(4:6);
 dz(4:6) = qdd;
 
+
+Fk = kickForce(KC,SoccerBall);
 dz(7:9) = z(10:12);
-dz(10) = -kickForce(KC,SoccerBall,100,1)/SoccerBall.mass;
-dz(12) = -9.81 + contactForce(SoccerBall,10000,1000)/SoccerBall.mass;
-    
+dz(10) = -Fk(1)/SoccerBall.mass;
+dz(12) = -9.81 + (contactForce(SoccerBall,10000,10) - Fk(3))/SoccerBall.mass;
 end
