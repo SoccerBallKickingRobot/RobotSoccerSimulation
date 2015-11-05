@@ -4,7 +4,7 @@ obj = struct();
 obj.name = 'Soccer Ball';
 obj.type = 'Ball';
 obj.states = zeros(6,1);
-obj.mass = 0.1;
+obj.mass = 0.05;
 
 % Create the arrays that describe the sphere
 n = 10;
@@ -16,7 +16,7 @@ obj.color = struct();
 obj.color.name = 'grey';
 obj.color.values = C;
 obj.dims = struct();
-obj.dims.radius = 0.08;
+obj.dims.radius = 0.05;
 obj.dims.x = x;
 obj.dims.y = y;
 obj.dims.z = z;

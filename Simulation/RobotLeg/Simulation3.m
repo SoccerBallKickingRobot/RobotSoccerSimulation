@@ -10,8 +10,9 @@ function Robot = Simulation3(Robot)
 KC = Robot.KinematicChains.RL;
 SoccerBall = CreateSoccerBall;
 
-tspan = 0:.03:pi/3+0.04;
+tspan = 0:.01:pi/3+0.04;
 z0 = zeros(12,1);
+SoccerBall.dims.radius
 z0(7:9) = [SoccerBall.dims.radius + 0.05; 0; SoccerBall.dims.radius];
 z0(12) = 0;
 opts = odeset('AbsTol',1e-3,'RelTol',1e-3);
@@ -129,6 +130,6 @@ dz(4:6) = qdd;
 
 Fk = kickForce(KC,SoccerBall);
 dz(7:9) = z(10:12);
-dz(10) = -Fk(1)/SoccerBall.mass;
+dz(10) = (-Fk(1) - 1/2*6*pi*SoccerBall.dims.radius^2*z(10)^2)/SoccerBall.mass;
 dz(12) = -9.81 + (contactForce(SoccerBall,10000,10) - Fk(3))/SoccerBall.mass;
 end

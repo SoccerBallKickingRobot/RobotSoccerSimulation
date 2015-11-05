@@ -33,12 +33,12 @@ elseif (strcmp(Robot.Name, 'Mechatronic Arm'))
 elseif (strcmp(Robot.Name, 'Robot Leg'))
     % Figure setup for RobotHAZMAT robot
     set(gcf,'Name','Robot Leg Simulation');
-    pbaspect([1 1 1]); view(60,20);
+    pbaspect([16 4 4]); view(60,20);
     set(gca, 'color', [1 1 1]); set(gcf, 'color', [1 1 1]);
     FS = 16;xlabel('X [m]','FontSize',FS);
     title('Robot Leg Simulation','FontSize',FS);
     ylabel('Y [m]','FontSize',FS);zlabel('Z [m]','FontSize',FS);
-    axis([-0.4 0.4 -0.4 0.4 -0.2 0.6]);
+    axis([-0.4 1.2, -0.2 0.2, -0 0.4]);
     hold on; grid on;
     
 else
