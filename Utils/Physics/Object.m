@@ -15,6 +15,7 @@ classdef Object
         dims;
         color;
         props;
+        optimization;
     end
     
     methods
@@ -27,6 +28,7 @@ classdef Object
             Object.dims = (obj.dims);
             Object.color = (obj.color);
             Object.props = (obj.props);
+            Object.optimization = (obj.opt);
         end
     end
 end

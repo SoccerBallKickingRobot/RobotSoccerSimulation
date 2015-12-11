@@ -1,5 +1,4 @@
-function [H, HT, pointsG, dx, T, V, eom, A, b, Jfoot] = ...
-    EOMSymNum(KC, request)
+function KC = EOMSymNum(KC)
 %% ====================Equations of Motion Symbolic========================
 % 2.740: Bio-Inspired Robotics
 % Soccer Ball Kicking Robot
@@ -17,6 +16,7 @@ th =  sym('th',[1,DOF],'real')';
 dth =  sym('dth',[1,DOF],'real')';
 ddth =  sym('ddth',[1,DOF],'real')';
 tau =  sym('tau',[1,DOF],'real')';
+F =  sym('F',[1,DOF],'real')';
 
 q   = th;        % generalized coordinates
 dq  = dth;     % first time derivatives
@@ -91,7 +91,9 @@ Qtau1 = M2Q(tau(1)*jhat, dth(1)*jhat);
 Qtau2 = M2Q(tau(2)*jhat, dth(2)*jhat);
 Qtau3 = M2Q(tau(3)*jhat, dth(3)*jhat);
 
-Q = Qtau1 + Qtau2 + Qtau3;
+QF = F2Q(F(1)*ihat + F(2)*jhat + F(3)*khat, pointsG(1:3,DOF));
+
+Q = Qtau1 + Qtau2 + Qtau3 + QF;
 %%
 E = T+V;                                         % total system energy
 L = T-V;                                         % the Lagrangian
@@ -100,18 +102,23 @@ eom = ddt(jacobian(L,dq)') - jacobian(L,q)' - Q;
 A = jacobian(eom,ddq);
 b = A*ddq - eom;
 
-
-% Compute foot jacobian
-Jfoot = jacobian(pointsG(1:3,3),q);
+% Compute Jacobians
+for i = 1:DOF
+    J{i} = jacobian(pointsG(1:3,i),q);
+end
 
 %%% Write functions to evaluate dynamics, etc...
 z = sym(zeros(length([q;dq]),1)); % initialize the state vector
 z(1:DOF,1) = q;  
 z(DOF+1:DOF*2,1) = dq;
 
-directory = 'RobotKinematics/RobotLeg/';
-matlabFunction(A,'file',[directory name 'A' ],'vars',{z});
-matlabFunction(b,'file',[directory name 'b' ],'vars',{z,u});
-matlabFunction(Jfoot,'file',[directory name 'Jfoot' ],'vars',{z});
-matlabFunction(dx(1:3,3),'file',[directory name 'FootVelocity' ],'vars',{z});
+% directory = 'RobotKinematics/RobotLeg/';
+% matlabFunction(A,'file',[directory name 'A' ],'vars',{z});
+% matlabFunction(b,'file',[directory name 'b' ],'vars',{z,u});
+% matlabFunction(Jfoot,'file',[directory name 'Jfoot' ],'vars',{z});
+% matlabFunction(dx(1:3,3),'file',[directory name 'FootVelocity' ],'vars',{z});
 
+KC.symbolic.dynamics.A = A;
+KC.symbolic.dynamics.b = b;
+KC.symbolic.dynamics.dx = dx;
+KC.symbolic.dynamics.Jacobian = J;

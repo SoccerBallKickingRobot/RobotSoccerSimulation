@@ -6,27 +6,25 @@
 %
 % Simulates the dynamic swinging leg kicking the soccer ball with a very
 % rough contact model.
-function Robot = Simulation3(Robot)
+function Robot = Simulation4(X0,z0,Robot,SoccerBall,KKnee)
 KC = Robot.KinematicChains.RL;
-SoccerBall = CreateSoccerBall;
 
-tspan = 0:.01:pi/3+0.04;
-z0 = zeros(12,1);
-SoccerBall.dims.radius
-z0(7:9) = [SoccerBall.dims.radius + 0.05; 0; SoccerBall.dims.radius];
-z0(12) = 0;
+tf = X0(1,1);
+traj = X0(1,2:end);
+tspan = 0:tf/(length(traj)/2):tf;
+
 opts = odeset('AbsTol',1e-3,'RelTol',1e-3);
-[x,y] = ode23t(@dynamics,tspan,z0,opts,KC,SoccerBall,Robot);
+[x,y] = ode23t(@dynamics,tspan,z0,opts,KC,SoccerBall,Robot,tf,traj,KKnee);
 
 Robot.KinematicChains.RL.traj.x = x';
 Robot.KinematicChains.RL.traj.y = y';
 Robot.KinematicChains.RL.traj.KCName = KC.Name;
 
-PlaybackTrajectory(Robot, Robot.KinematicChains.RL.traj, 1)
+PlaybackTrajectory(Robot, Robot.KinematicChains.RL.traj, 2)
 end
 
 %%
-function tau = control_law(t,KC)
+function tau = control_law(t,KC,tf,traj)
 %fprintf('%f\n',t);
 
 % Controller gains
@@ -34,20 +32,20 @@ K = [100; 0; 100];
 D = [5; 0; 5];
 
 % Calculate desired trajectory
-traj.traj = 1;
-t=t+pi;
-traj = TrajectoriesRobotLeg(6*t*180/pi + 180,traj);
-footPosD = traj.point;
-%footPosD = [-0.25;0;0.29];
-%footPosD = [0.02+t/50;0;0.075];
+tc = linspace(0,tf,length(traj)/2);
+footPosD(1,1) = interp1(tc,traj(1:2:length(traj)),t,'linear','extrap');
+footPosD(2,1) = 0;
+footPosD(3,1) = interp1(tc,traj(2:2:length(traj)),t,'linear','extrap');
 
 % Current foot position, velocity, and Jacobian
+th1 = KC.states(1); th2 = KC.states(2); th3 = KC.states(3);
+dth1 = KC.states(4); dth2 = KC.states(5); dth3 = KC.states(6);
 footPos = KC.points.pG(1:3,3);
-dFootPos = RobotLegFootVelocity(KC.states);
-Jleg  = RobotLegJfoot(KC.states);
+dx = eval(KC.symbolic.dynamics.dx);
+J  = eval(KC.symbolic.dynamics.Jacobian{1});
 
 % Calculated control input
-tau = -Jleg'*(K.*(footPos - footPosD) + D.*dFootPos);
+tau = -J'*(K.*(footPos - footPosD) + D.*dx(1:3,1));
 %tau = [0;0;0];
 end
 
@@ -56,9 +54,6 @@ function Fa = angleForce(KC,n,K,D)
 C = KC.states(n);
 dC = KC.states(n+KC.DOF);
 Fa = -K*C - D*dC;
-if (n == 2) 
-    -K*C;
-end
 if (C > KC.optimization.bounds.lb(n) && C < KC.optimization.bounds.ub(n))
     Fa = 0;
 end
@@ -96,10 +91,16 @@ Fk = Fk*c;
 
 end
 
+function FKneeStiff = Stiffness(KC,KKnee)
+    states = KC.states;
+    FKneeStiff = -KKnee*states(2);
+end
+
 %%
-function dz = dynamics(t,z,KC,SoccerBall,Robot)
+function dz = dynamics(t,z,KC,SoccerBall,Robot,tf,traj,KKnee)
 KC.states = z(1:6,1);
 SoccerBall.states = z(7:12,1);
+
 
 KC = RotateKinematicChain(KC,z(1:3,1));
 
@@ -111,7 +112,7 @@ KC = RotateKinematicChain(KC,z(1:3,1));
 A = RobotLegA(KC.states);
 
 % Compute Controls
-tau = control_law(t,KC);
+tau = control_law(t,KC,tf,traj);
 
 % Get b = Q - V(q,qd) - G(q)
 b = RobotLegb(KC.states, tau);
@@ -121,9 +122,10 @@ Fah = angleForce(KC,1,10,0.1);
 Fak = angleForce(KC,2,100,0.1);
 Faa = angleForce(KC,3,100,0.1);
 
-% KNEE SPRING ADD
+% Kknee function for force
+FKneeStiff = 0;%Stiffness(KC,KKnee);
 
-QFa = [Fah;Fak;Faa];
+QFa = [Fah; Fak + FKneeStiff; Faa];
 
 % Solve for qdd.
 qdd = A\(b+QFa);

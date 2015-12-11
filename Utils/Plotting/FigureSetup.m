@@ -6,7 +6,7 @@ function FigureSetup(Robot)
 % December 10, 2014
 %
 % Setup of the simulation figure for nicer plot. Custom to each robot
-% because of varying dimentions and ranges of motion. 
+% because of varying dimentions and ranges of motion.
 
 if (strcmp(Robot.Name, 'RoboHAZMAT'))
     % Figure setup for RobotHAZMAT robot
@@ -39,6 +39,7 @@ elseif (strcmp(Robot.Name, 'Robot Leg'))
     title('Robot Leg Simulation','FontSize',FS);
     ylabel('Y [m]','FontSize',FS);zlabel('Z [m]','FontSize',FS);
     axis([-0.4 1.2, -0.2 0.2, -0 0.4]);
+    az = 23; el = 9; view([az,el])
     hold on; grid on;
     
 else

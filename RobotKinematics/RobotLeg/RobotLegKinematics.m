@@ -38,15 +38,26 @@ RL.d.dCOM.lc(3) = RL.d.length.l(3)/2;
 
 % Mass of the links
 RL.mass = struct();
-RL.mass = [0.09;0.09;0.09/2.2];
+RL.mass = [0.36097;0.17716;0.08339];
 
 % Inertia of the links
 RL.inertia = {};
-for i = 1:RL.DOF
-   RL.inertia{i} = 0*[0, 0, 0;...
-       0, (RL.mass(i)*RL.d.length.l(i)^2)/3, 0;...
-       0, 0, (RL.mass(i)*RL.d.length.l(i)^2)/3];
-end
+% for i = 1:RL.DOF
+%    RL.inertia{i} = [0, 0, 0;...
+%        0, (RL.mass(i)*RL.d.length.l(i)^2)/3, 0;...
+%        0, 0, (RL.mass(i)*RL.d.length.l(i)^2)/3];
+% end
+
+% thigh inertia
+RL.inertia{1} = 1/(1000*1000^2)*[2714053.19, -27972.60, -25552.89;...
+    -27972.60, 1157351.49, 938033.34;...
+    -25552.89, 938033.34, 1731617]; % g*mm^2
+RL.inertia{2} = 1/(1000*1000^2)*[1179187.61, 4553.92, -9439.87;...
+    4553.92, 1079892.87, -219077.53;...
+    -9439.87, -219077.53, 153538.9];
+RL.inertia{3} = 1/(1000*1000^2)*[34012.54, 741.29, -3446.59;...
+    741.29, 38804.78, -767.97;...
+    -3446.59, -767.97, 30996.53];
 
 % Frame points in each frame
 RL.pts = struct();
@@ -74,8 +85,8 @@ RL.pts.o = [0;
 % Physical system constraints, upper and lower bounds
 RL.opt = struct();
 RL.opt.bounds = struct();
-RL.opt.bounds.lb = [-pi/2, -170*pi/180, 0];
-RL.opt.bounds.ub = [2*pi/3, 0, 0];
+RL.opt.bounds.lb = [-pi/2; -170*pi/180; 0; -2*pi; -2*pi; 0];
+RL.opt.bounds.ub = [2*pi/3; 0; 0; 2*pi; 2*pi; 0];
 
 % Weighting on importance of points
 RL.opt.weightings = zeros(1,size(RL.pts.kP,2));
@@ -122,4 +133,4 @@ end
 
 %% ===============Transform each point in the global frame=================
 RLK = RotateKinematicChain(KinematicSystem(RL), zeros(RL.DOF, 1));
-EOMSymNum(RLK);
+RLK = EOMSymNum(RLK);

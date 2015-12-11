@@ -23,10 +23,10 @@ SoccerBall = CreateSoccerBall;
 firstI = 0;
 for i = 1:velocity:length(traj.x)
     Robot.KinematicChains.(fields{field}) = ...
-        RotateKinematicChain(Robot.KinematicChains.(fields{field}),traj.y(1:3,i));
+        RotateKinematicChain(Robot.KinematicChains.(fields{field}),traj.y(i,1:3)');
     RobotPlot(Robot);
     if (size(traj.y,1) > 6)
-        SoccerBall.states = traj.y(7:12,i);
+        SoccerBall.states = traj.y(i,7:12)';
         DrawBall(SoccerBall)
     end
     histT(i,:) = Robot.KinematicChains.(fields{field}).points.kPG(1:3,3)';
@@ -40,11 +40,11 @@ for i = 1:velocity:length(traj.x)
     if(opt == 1 || opt == 3)
         plot3(histT(:,1),histT(:,2),histT(:,3),'Marker','.','color','red',...
             'MarkerSize',MS,'LineStyle','none');
-        if (traj.y(10,i) > 0)
+        if (traj.y(i,10) > 0)
             if (firstI == 0)
                 firstI = i;
             end
-            plot3(traj.y(7,firstI:i),traj.y(8,firstI:i),traj.y(9,firstI:i));
+            plot3(traj.y(firstI:i,7),traj.y(firstI:i,8),traj.y(firstI:i,9));
         end
     end
     if(opt == 2 || opt == 3)
